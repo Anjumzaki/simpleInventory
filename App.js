@@ -5,6 +5,11 @@ import {View,Text} from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack';
 import Home from './src/screens/Home'
 import ProductDetails from './src/screens/ProductDetails'
+import AddProduct from './src/screens/AddProduct'
+import EditProduct from './src/screens/EditProduct'
+import BarcodeScreen from './src/screens/BarcodeScreen'
+
+
 
 const Stack = createStackNavigator();
 
@@ -13,6 +18,9 @@ function MyStack() {
     <Stack.Navigator headerMode="none">
       <Stack.Screen  name="Home" component={Home} />
       <Stack.Screen  name="ProductDetails" component={ProductDetails} />
+      <Stack.Screen  name="AddProduct" component={AddProduct} />
+      <Stack.Screen  name="EditProducts" component={EditProduct} />
+      <Stack.Screen  name="BarcodeScreen" component={BarcodeScreen} />
     </Stack.Navigator>
   );
 }

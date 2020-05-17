@@ -52,7 +52,9 @@ export default class ProductDetails extends React.Component {
           <Text style={{ color: "white", fontWeight: "bold" }}>
             {item.name}
           </Text>
-          <TouchableOpacity>
+          <TouchableOpacity 
+          onPress={()=>this.props.navigation.push('EditProducts')}
+           >
             <Text
               style={{
                 color: "white",

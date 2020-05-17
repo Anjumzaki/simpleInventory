@@ -82,6 +82,9 @@ export default class GeneralExample extends Component {
               paddingHorizontal: 20,
               backgroundColor: "#2D3436",
               paddingVertical: 20,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
             <Item
@@ -89,14 +92,37 @@ export default class GeneralExample extends Component {
                 borderTopWidth: 1,
                 borderLeftWidth: 1,
                 borderRightWidth: 1,
-                borderColor: "white",
+                borderColor: "#B2BEC3",
                 borderRadius: 10,
                 paddingHorizontal: 10,
+                width: "80%",
+                backgroundColor: "#B2BEC3",
               }}
             >
               <Input style={{ color: "white" }} placeholder="Search Products" />
               <Icon style={{ color: "white" }} name="search" />
             </Item>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.push("BarcodeScreen")}
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                paddingHorizontal: "5%",
+                paddingRight:0
+              }}
+            >
+              <Icon style={{ color: "white" }} name="ios-barcode" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.push("AddProduct")}
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                paddingHorizontal: "5%",
+              }}
+            >
+              <Icon style={{ color: "white" }} name="ios-add" />
+            </TouchableOpacity>
           </View>
         </View>
         <View style={{ height: 80 }}>
@@ -111,7 +137,7 @@ export default class GeneralExample extends Component {
           >
             {newFilter.map((item, i) => (
               <TouchableOpacity
-              key={i}
+                key={i}
                 onPress={() =>
                   this.setState({
                     filter: i,
@@ -134,8 +160,10 @@ export default class GeneralExample extends Component {
         <ScrollView contentContainerStyle={{ paddingHorizontal: 10 }}>
           {products.map((item, i) => (
             <TouchableOpacity
-            key={i}
-            onPress={()=>this.props.navigation.navigate('ProductDetails',{item:item})}
+              key={i}
+              onPress={() =>
+                this.props.navigation.navigate("ProductDetails", { item: item })
+              }
               style={{
                 flexDirection: "row",
                 shadowColor: "#000",
@@ -157,14 +185,28 @@ export default class GeneralExample extends Component {
                 style={{ width: 100, height: 100 }}
                 imagePath={require("../assets/" + 0 + ".jpg")}
               />
-              <View style={{ padding: 10,justifyContent:'space-between' }}>
-                <View style={{ flexDirection: "row",justifyContent:'space-between',width:Dimensions.get("window").width - 160 }}>
+              <View style={{ padding: 10, justifyContent: "space-between" }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    width: Dimensions.get("window").width - 160,
+                  }}
+                >
                   <Text>{item.name}</Text>
                   <Text>{item.price}</Text>
                 </View>
-                <View style={{ flexDirection: "row",justifyContent:'space-between',width:Dimensions.get("window").width - 160 }}>
-                  <Text style={{color:'#B2BEC3'}}>Quantity: {item.quantity}</Text>
-                  <Text style={{color:'#B2BEC3'}}> {item.type}</Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    width: Dimensions.get("window").width - 160,
+                  }}
+                >
+                  <Text style={{ color: "#B2BEC3" }}>
+                    Quantity: {item.quantity}
+                  </Text>
+                  <Text style={{ color: "#B2BEC3" }}> {item.type}</Text>
                 </View>
               </View>
             </TouchableOpacity>
