@@ -1,8 +1,10 @@
 import React from "react";
-import { View, Image, ActivityIndicator } from "react-native";
+import { View, Image, ActivityIndicator, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
+import axios from 'axios'
+import firebase from 'firebase'
 import {
   Container,
   Header,
@@ -34,6 +36,8 @@ export default class ProductDetails extends React.Component {
       description: "",
       price: "",
       quantity: "",
+      serialNo: '',
+      msg: ''
     };
   }
   componentDidMount() {
@@ -66,14 +70,50 @@ export default class ProductDetails extends React.Component {
       console.log(E);
     }
   };
-  handleSave() {
+
+
+    uploadImage = async (uri,id) => {
+      console.log("in functiom",uri,id)
+      const response = await fetch(uri);
+      const blob = await response.blob();
+
+      var ref = firebase
+        .storage()
+        .ref()
+        .child("product_images/" + id + ".jpg");
+      return ref.put(blob);
+    };
+
+  async handleSave() {
     if (this.state.image) {
       if (this.state.name) {
         if (this.state.type) {
           if (this.state.description) {
             if (this.state.price) {
               if (this.state.quantity) {
-                alert("Call Function here");
+                if (this.state.serialNo) {
+                // alert("Call Function here");
+                axios.post('http://192.168.0.105:3000/add/product',{
+                  name: this.state.name,
+                  type: this.state.type,
+                  description: this.state.description,
+                  price: this.state.price,
+                  quantity: this.state.quantity,
+                  serialNo: this.state.serialNo
+                })
+                .then(async(resp) => {
+                  console.log("sd",resp.data)
+
+                  await this.uploadImage(this.state.image, resp.data.product._id)
+                   Alert("Product Publish Successfully")
+                  // .then((err) => Alert(err));
+
+                })
+                .catch(err => console.log(err))
+
+              } else {
+                alert("Please enter serial Code");
+              }
               } else {
                 alert("Please enter quantity");
               }
@@ -94,6 +134,7 @@ export default class ProductDetails extends React.Component {
     }
   }
   render() {
+    console.log("state",this.state)
     let { image } = this.state;
     return (
       <View>
@@ -181,9 +222,22 @@ export default class ProductDetails extends React.Component {
               />
             </Item>
             <Item floatingLabel last>
-              <Label keyboardType={"number-pad"}>Quantity</Label>
+              <Label keyboardType={"decimal-pad"}>Quantity</Label>
               <Input onChangeText={(quantity) => this.setState({ quantity })} />
             </Item>
+            <Item floatingLabel last>
+              <Label keyboardType={"decimal-pad"}>Serial Code.</Label>
+              <Input 
+              value={this.props.route.params.serialNo}
+              onChangeText={(serialNo) => {
+                  if(serialNo.length > 7){
+                    this.setState({ serialNo, msg: "" })
+                  }else{
+                    this.setState({msg: 'Serial Code should be greater than 7 characters'})
+                  }
+                }} />
+            </Item>
+              <Text style={{textAlign: "center", color: "red"}}>{this.state.msg}</Text>
           </Form>
         </ScrollView>
       </View>

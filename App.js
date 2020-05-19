@@ -8,7 +8,7 @@ import ProductDetails from './src/screens/ProductDetails'
 import AddProduct from './src/screens/AddProduct'
 import EditProduct from './src/screens/EditProduct'
 import BarcodeScreen from './src/screens/BarcodeScreen'
-
+import fire from './src/config/Fire'
 
 
 const Stack = createStackNavigator();

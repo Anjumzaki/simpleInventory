@@ -22,6 +22,8 @@ import {
 } from "native-base";
 import { getStatusBarHeight } from "react-native-status-bar-height";
 import { TouchableOpacity, ScrollView } from "react-native-gesture-handler";
+import axios from 'axios'
+import firebase from 'firebase'
 
 export default class ProductDetails extends React.Component {
   constructor(props) {
@@ -29,10 +31,36 @@ export default class ProductDetails extends React.Component {
     this.state = {
       src: "",
       image: null,
+      name: '',
+      type: '',
+      description: '',
+      price: '',
+      quantity: ''
     };
   }
   componentDidMount() {
     this.getPermissionAsync();
+
+
+    const { item } = this.props.route.params;
+    console.log(item);
+    this.setState({
+      name: item.name,
+      type: item.type,
+      description: item.description,
+      price: item.price,
+      quantity: item.quantity
+      })
+    const ref = firebase
+    .storage()
+    .ref("product_images/" + this.props.route.params.item._id + ".jpg");
+      ref.getDownloadURL().then((url) => {
+        console.log("Imageee urllllllllll", url);
+        this.setState({ image: url });
+      }).catch((err)=>{
+        console.log(err)
+      });
+
   }
 
   getPermissionAsync = async () => {
@@ -62,8 +90,69 @@ export default class ProductDetails extends React.Component {
     }
   };
 
+  uploadImage = async (uri,id) => {
+    console.log("in functiom",uri,id)
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    var ref = firebase
+      .storage()
+      .ref()
+      .child("product_images/" + id + ".jpg");
+    return ref.put(blob);
+  };
+
+
+  async handleSave() {
+    if (this.state.image) {
+      if (this.state.name) {
+        if (this.state.type) {
+          if (this.state.description) {
+            if (this.state.price) {
+              if (this.state.quantity) {
+                // alert("Call Function here");
+                axios.put('http://192.168.0.105:3000/edit/product/'+this.props.route.params.item._id,{
+                  name: this.state.name,
+                  type: this.state.type,
+                  description: this.state.description,
+                  price: this.state.price,
+                  quantity: this.state.quantity
+                })
+                .then(async(resp) => {
+                  console.log("sd",resp.data)
+
+                  this.uploadImage(this.state.image, this.props.route.params.item._id)
+                  .then((resp) => Alert("success"))
+                  .then((err) => Alert(err));
+
+                })
+                .catch(err => console.log(err))
+
+
+              } else {
+                alert("Please enter quantity");
+              }
+            } else {
+              alert("Please enter price");
+            }
+          } else {
+            alert("Please enter description");
+          }
+        } else {
+          alert("Please enter type");
+        }
+      } else {
+        alert("Please enter name");
+      }
+    } else {
+      alert("Please add image");
+    }
+  }
+
   render() {
     let { image } = this.state;
+   
+
     return (
       <View>
         <View
@@ -89,7 +178,7 @@ export default class ProductDetails extends React.Component {
           <Text style={{ color: "white", fontWeight: "bold" }}>
             Edit Product
           </Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => this.handleSave()}>
             <Text
               style={{
                 color: "white",
@@ -130,23 +219,23 @@ export default class ProductDetails extends React.Component {
             </View>
             <Item floatingLabel>
               <Label>Name</Label>
-              <Input />
+              <Input value={this.state.name} onChangeText={(name) => this.setState({ name })}/>
             </Item>
             <Item floatingLabel last>
               <Label>Type</Label>
-              <Input />
+              <Input value={this.state.type} onChangeText={(type) => this.setState({ type })}/>
             </Item>
             <Item floatingLabel last>
               <Label>Description</Label>
-              <Input />
+              <Input value={this.state.description} onChangeText={(description) => this.setState({ description })}/>
             </Item>
             <Item floatingLabel last>
               <Label>Price</Label>
-              <Input keyboardType={"decimal-pad"} />
+              <Input keyboardType={"decimal-pad"} value={this.state.price} onChangeText={(price) => this.setState({ price })}/>
             </Item>
             <Item floatingLabel last>
-              <Label keyboardType={"number-pad"}>Quantity</Label>
-              <Input />
+              <Label keyboardType={"decimal-pad"} >Quantity</Label>
+              <Input value={this.state.quantity} onChangeText={(quantity) => this.setState({ quantity })}/>
             </Item>
           </Form>
         </ScrollView>

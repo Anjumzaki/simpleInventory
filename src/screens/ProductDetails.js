@@ -15,13 +15,31 @@ import {
 } from "native-base";
 import { getStatusBarHeight } from "react-native-status-bar-height";
 import { TouchableOpacity, ScrollView } from "react-native-gesture-handler";
-
+import axios from 'axios'
+import firebase from 'firebase'
 export default class ProductDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       src: "",
+      quantity: "0",
+      image: ''
     };
+  }
+
+  componentDidMount(){
+    this.setState({quantity: this.props.route.params.item.quantity})
+
+    const ref = firebase
+    .storage()
+    .ref("product_images/" + this.props.route.params.item._id + ".jpg");
+      ref.getDownloadURL().then((url) => {
+        console.log("Imageee urllllllllll", url);
+        this.setState({ image: url });
+      }).catch((err)=>{
+        console.log(err)
+      });
+
   }
 
   render() {
@@ -53,7 +71,7 @@ export default class ProductDetails extends React.Component {
             {item.name}
           </Text>
           <TouchableOpacity 
-          onPress={()=>this.props.navigation.push('EditProducts')}
+          onPress={()=>this.props.navigation.push('EditProducts', {item: item})}
            >
             <Text
               style={{
@@ -82,7 +100,8 @@ export default class ProductDetails extends React.Component {
               }}
             >
               <Image
-                source={require("../assets/1.jpg")}
+                // source={require("../assets/1.jpg")}
+                source={{uri: this.state.image}}
                 style={{ height: 200, width: 200 }}
               />
             </View>
@@ -98,12 +117,27 @@ export default class ProductDetails extends React.Component {
                 justifyContent: "space-evenly",
               }}
             >
-              <TouchableOpacity  style={{ paddingHorizontal: 10 }}>
-                <Icon style={{ fontSize: 40 }} name="ios-add" />
-              </TouchableOpacity>
-              <Text style={{ fontSize: 30 }}>{item.quantity}</Text>
-              <TouchableOpacity style={{ paddingHorizontal: 10 }}>
+       
+              <TouchableOpacity style={{ paddingHorizontal: 10 }}  onPress={() => {
+                
+                axios.put('http://192.168.0.105:3000/edit/product/quantity/'+item._id,{
+                  quantity: parseInt(this.state.quantity)-1
+                })
+                .then(resp => this.setState({quantity: parseInt(this.state.quantity)-1}))
+                .catch(err => console.log(err))
+                }}>
                 <Icon style={{ fontSize: 40 }} name="ios-remove" />
+              </TouchableOpacity>
+              <Text style={{ fontSize: 30 }}>{this.state.quantity}</Text>
+              <TouchableOpacity  style={{ paddingHorizontal: 10 }} onPress={() => {
+                
+                axios.put('http://192.168.0.105:3000/edit/product/quantity/'+item._id,{
+                  quantity: parseInt(this.state.quantity)+1
+                })
+                .then(resp => this.setState({quantity: parseInt(this.state.quantity)+1}))
+                .catch(err => console.log(err))
+                }}>
+                <Icon style={{ fontSize: 40 }} name="ios-add" />
               </TouchableOpacity>
             </View>
           </Card>

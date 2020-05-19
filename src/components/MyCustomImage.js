@@ -1,18 +1,28 @@
 import React from "react";
 import { View, Image, ActivityIndicator } from "react-native";
 import { Text } from "native-base";
+import firebase from 'firebase'
 
 export default class MyCustomImage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      src: "",
+      image: "",
     };
   }
   componentDidMount() {
-    this.setState({
-      src: this.props.imagePath,
-    });
+ 
+
+    const ref = firebase
+    .storage()
+    .ref("product_images/" + this.props.imagePath + ".jpg");
+      ref.getDownloadURL().then((url) => {
+        console.log("Imageee urllllllllll", url);
+        this.setState({ image: url });
+      }).catch((err)=>{
+        console.log(err)
+      });
+
   }
 
   render() {
@@ -26,7 +36,7 @@ export default class MyCustomImage extends React.Component {
         {src == "" ? (
           <ActivityIndicator color="gray" size={"large"} />
         ) : (
-          <Image style={this.props.style} source={src} />
+          <Image style={this.props.style} source={{uri: this.state.image}} />
         )}
         
       </View>
