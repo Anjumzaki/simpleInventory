@@ -30,7 +30,7 @@ export default class GeneralExample extends Component {
   componentDidMount(){
     // this._unsubscribe = this.props.navigation.addListener('focus', () => {
         // Alert('asjkdhaksj')
-        axios.get('http://192.168.0.105:3000/get/products/')
+        axios.get('https://secret-beach-00126.herokuapp.com/get/products/')
         .then(resp => {
           console.log("sds",resp.data)
           this.setState({products: resp.data})

@@ -120,7 +120,7 @@ export default class ProductDetails extends React.Component {
        
               <TouchableOpacity style={{ paddingHorizontal: 10 }}  onPress={() => {
                 
-                axios.put('http://192.168.0.105:3000/edit/product/quantity/'+item._id,{
+                axios.put('https://secret-beach-00126.herokuapp.com/edit/product/quantity/'+item._id,{
                   quantity: parseInt(this.state.quantity)-1
                 })
                 .then(resp => this.setState({quantity: parseInt(this.state.quantity)-1}))
@@ -131,7 +131,7 @@ export default class ProductDetails extends React.Component {
               <Text style={{ fontSize: 30 }}>{this.state.quantity}</Text>
               <TouchableOpacity  style={{ paddingHorizontal: 10 }} onPress={() => {
                 
-                axios.put('http://192.168.0.105:3000/edit/product/quantity/'+item._id,{
+                axios.put('https://secret-beach-00126.herokuapp.com/edit/product/quantity/'+item._id,{
                   quantity: parseInt(this.state.quantity)+1
                 })
                 .then(resp => this.setState({quantity: parseInt(this.state.quantity)+1}))

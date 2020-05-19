@@ -17,7 +17,7 @@ export default function App(props) {
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
     // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
-    axios.get('http://192.168.0.105:3000/get/product/'+data)
+    axios.get('https://secret-beach-00126.herokuapp.com/get/product/'+data)
     .then(resp => {
       console.log(resp.data)
       if(resp.data === null){

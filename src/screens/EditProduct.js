@@ -111,7 +111,7 @@ export default class ProductDetails extends React.Component {
             if (this.state.price) {
               if (this.state.quantity) {
                 // alert("Call Function here");
-                axios.put('http://192.168.0.105:3000/edit/product/'+this.props.route.params.item._id,{
+                axios.put('https://secret-beach-00126.herokuapp.com/edit/product/'+this.props.route.params.item._id,{
                   name: this.state.name,
                   type: this.state.type,
                   description: this.state.description,

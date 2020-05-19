@@ -93,7 +93,7 @@ export default class ProductDetails extends React.Component {
               if (this.state.quantity) {
                 if (this.state.serialNo) {
                 // alert("Call Function here");
-                axios.post('http://192.168.0.105:3000/add/product',{
+                axios.post('https://secret-beach-00126.herokuapp.com/add/product',{
                   name: this.state.name,
                   type: this.state.type,
                   description: this.state.description,
