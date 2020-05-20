@@ -92,24 +92,23 @@ export default class ProductDetails extends React.Component {
             if (this.state.price) {
               if (this.state.quantity) {
                 if (this.state.serialNo) {
+                    axios.post('https://secret-beach-00126.herokuapp.com/add/product',{
+                      name: this.state.name,
+                      type: this.state.type,
+                      description: this.state.description,
+                      price: this.state.price,
+                      quantity: this.state.quantity,
+                      serialNo: this.state.serialNo
+                    })
+                    .then(async(resp) => {
+                      console.log("sd",resp.data)
+                      await this.uploadImage(this.state.image, resp.data.product._id)
+                       alert("Product Publish Successfully")
+                    })
+                    .catch(err => console.log(err))
+
                 // alert("Call Function here");
-                axios.post('https://secret-beach-00126.herokuapp.com/add/product',{
-                  name: this.state.name,
-                  type: this.state.type,
-                  description: this.state.description,
-                  price: this.state.price,
-                  quantity: this.state.quantity,
-                  serialNo: this.state.serialNo
-                })
-                .then(async(resp) => {
-                  console.log("sd",resp.data)
-
-                  await this.uploadImage(this.state.image, resp.data.product._id)
-                   Alert("Product Publish Successfully")
-                  // .then((err) => Alert(err));
-
-                })
-                .catch(err => console.log(err))
+   
 
               } else {
                 alert("Please enter serial Code");
@@ -228,13 +227,11 @@ export default class ProductDetails extends React.Component {
             <Item floatingLabel last>
               <Label keyboardType={"decimal-pad"}>Serial Code.</Label>
               <Input 
-              value={this.props.route.params.serialNo}
+              value={this.state.serialNo ? this.state.serialNo : this.props.route.params.serialNo}
               onChangeText={(serialNo) => {
-                  if(serialNo.length > 7){
-                    this.setState({ serialNo, msg: "" })
-                  }else{
-                    this.setState({msg: 'Serial Code should be greater than 7 characters'})
-                  }
+                 this.setState({
+                   serialNo
+                 })
                 }} />
             </Item>
               <Text style={{textAlign: "center", color: "red"}}>{this.state.msg}</Text>

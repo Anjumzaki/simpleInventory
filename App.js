@@ -9,6 +9,9 @@ import AddProduct from './src/screens/AddProduct'
 import EditProduct from './src/screens/EditProduct'
 import BarcodeScreen from './src/screens/BarcodeScreen'
 import fire from './src/config/Fire'
+import Login from './src/screens/Login'
+import SignUp from './src/screens/SignUp'
+
 
 
 const Stack = createStackNavigator();
@@ -16,6 +19,8 @@ const Stack = createStackNavigator();
 function MyStack() {
   return (
     <Stack.Navigator headerMode="none">
+      <Stack.Screen  name="Login" component={Login} />
+      <Stack.Screen  name="SignUp" component={SignUp} />
       <Stack.Screen  name="Home" component={Home} />
       <Stack.Screen  name="ProductDetails" component={ProductDetails} />
       <Stack.Screen  name="AddProduct" component={AddProduct} />
