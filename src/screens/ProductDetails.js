@@ -117,6 +117,7 @@ export default class ProductDetails extends React.Component {
                 justifyContent: "space-evenly",
               }}
             >
+              {/* https://secret-beach-00126.herokuapp.com */}
        
               <TouchableOpacity style={{ paddingHorizontal: 10 }}  onPress={() => {
                 

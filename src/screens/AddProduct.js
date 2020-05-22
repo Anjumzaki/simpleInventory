@@ -98,7 +98,8 @@ export default class ProductDetails extends React.Component {
                       description: this.state.description,
                       price: this.state.price,
                       quantity: this.state.quantity,
-                      serialNo: this.state.serialNo
+                      serialNo: this.state.serialNo,
+                      userId: this.props.route.params.uid
                     })
                     .then(async(resp) => {
                       console.log("sd",resp.data)

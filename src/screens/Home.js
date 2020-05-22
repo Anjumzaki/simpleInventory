@@ -29,7 +29,7 @@ export default class GeneralExample extends React.Component {
 
   componentDidMount() {
     axios
-    .get("https://secret-beach-00126.herokuapp.com/get/products/")
+    .get("https://secret-beach-00126.herokuapp.com/get/products/"+this.props.route.params.uid)
     .then((resp) => {
       console.log("sds", resp.data);
       this.setState({ products: resp.data });
@@ -37,7 +37,7 @@ export default class GeneralExample extends React.Component {
     .catch((err) => console.log(err));
     this._unsubscribe = this.props.navigation.addListener('focus', () => {
       axios
-      .get("https://secret-beach-00126.herokuapp.com/get/products/")
+      .get("https://secret-beach-00126.herokuapp.com/get/products/"+this.props.route.params.uid)
       .then((resp) => {
         console.log("sds", resp.data);
         this.setState({ products: resp.data });
@@ -147,7 +147,7 @@ export default class GeneralExample extends React.Component {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() =>
-                this.props.navigation.push("AddProduct", { serialNo: "" })
+                this.props.navigation.push("AddProduct", { uid: this.props.route.params.uid })
               }
               style={{
                 alignItems: "center",
