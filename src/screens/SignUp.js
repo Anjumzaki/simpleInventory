@@ -115,6 +115,7 @@ export default class Login extends React.Component {
             <Item floatingLabel last>
               <Label>Password</Label>
               <Input 
+              secureTextEntry={true}
               onChangeText={(password) =>
                 this.setState({
                   password,
@@ -125,6 +126,7 @@ export default class Login extends React.Component {
             <Item floatingLabel last>
               <Label>Confirm Password</Label>
               <Input 
+              secureTextEntry={true}
               onChangeText={(cpassword) =>
                 this.setState({
                   cpassword,
@@ -152,6 +154,7 @@ export default class Login extends React.Component {
             <Text style={{ color: "white" }}>Sign Up</Text>
           </TouchableOpacity>
           <TouchableOpacity
+          onPress={()=>this.props.navigation.navigate('Login')}
             style={{
               alignItems: "center",
               paddingVertical: 15,

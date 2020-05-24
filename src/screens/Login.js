@@ -109,6 +109,7 @@ export default class Login extends React.Component {
             <Item floatingLabel last>
               <Label>Password</Label>
               <Input 
+              secureTextEntry={true}
               onChangeText={(password) =>
                 this.setState({
                   password,
