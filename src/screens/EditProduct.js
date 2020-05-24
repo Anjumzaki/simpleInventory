@@ -20,10 +20,12 @@ import {
   Label,
   Input,
 } from "native-base";
+import Modal from "react-native-modal";
+
 import { getStatusBarHeight } from "react-native-status-bar-height";
 import { TouchableOpacity, ScrollView } from "react-native-gesture-handler";
-import axios from 'axios'
-import firebase from 'firebase'
+import axios from "axios";
+import firebase from "firebase";
 
 export default class ProductDetails extends React.Component {
   constructor(props) {
@@ -31,16 +33,16 @@ export default class ProductDetails extends React.Component {
     this.state = {
       src: "",
       image: null,
-      name: '',
-      type: '',
-      description: '',
-      price: '',
-      quantity: ''
+      name: "",
+      type: "",
+      description: "",
+      price: "",
+      quantity: "",
+      modal: false,
     };
   }
   componentDidMount() {
     this.getPermissionAsync();
-
 
     const { item } = this.props.route.params;
     console.log(item);
@@ -49,18 +51,20 @@ export default class ProductDetails extends React.Component {
       type: item.type,
       description: item.description,
       price: item.price,
-      quantity: item.quantity
-      })
+      quantity: item.quantity,
+    });
     const ref = firebase
-    .storage()
-    .ref("product_images/" + this.props.route.params.item._id + ".jpg");
-      ref.getDownloadURL().then((url) => {
+      .storage()
+      .ref("product_images/" + this.props.route.params.item._id + ".jpg");
+    ref
+      .getDownloadURL()
+      .then((url) => {
         console.log("Imageee urllllllllll", url);
         this.setState({ image: url });
-      }).catch((err)=>{
-        console.log(err)
+      })
+      .catch((err) => {
+        console.log(err);
       });
-
   }
 
   getPermissionAsync = async () => {
@@ -71,7 +75,23 @@ export default class ProductDetails extends React.Component {
       }
     }
   };
+  _pickImageCamera = async () => {
+    try {
+      let result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      if (!result.cancelled) {
+        this.setState({ image: result.uri, modal: false });
+      }
 
+      console.log(result);
+    } catch (E) {
+      console.log(E);
+    }
+  };
   _pickImage = async () => {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
@@ -81,17 +101,16 @@ export default class ProductDetails extends React.Component {
         quality: 1,
       });
       if (!result.cancelled) {
-        this.setState({ image: result.uri });
+        this.setState({ image: result.uri, modal: false });
       }
-
       console.log(result);
     } catch (E) {
       console.log(E);
     }
   };
 
-  uploadImage = async (uri,id) => {
-    console.log("in functiom",uri,id)
+  uploadImage = async (uri, id) => {
+    console.log("in functiom", uri, id);
     const response = await fetch(uri);
     const blob = await response.blob();
 
@@ -102,7 +121,6 @@ export default class ProductDetails extends React.Component {
     return ref.put(blob);
   };
 
-
   async handleSave() {
     if (this.state.image) {
       if (this.state.name) {
@@ -111,24 +129,30 @@ export default class ProductDetails extends React.Component {
             if (this.state.price) {
               if (this.state.quantity) {
                 // alert("Call Function here");
-                axios.put('https://secret-beach-00126.herokuapp.com/edit/product/'+this.props.route.params.item._id,{
-                  name: this.state.name,
-                  type: this.state.type,
-                  description: this.state.description,
-                  price: this.state.price,
-                  quantity: this.state.quantity
-                })
-                .then(async(resp) => {
-                  console.log("sd",resp.data)
+                axios
+                  .put(
+                    "https://secret-beach-00126.herokuapp.com/edit/product/" +
+                      this.props.route.params.item._id,
+                    {
+                      name: this.state.name,
+                      type: this.state.type,
+                      description: this.state.description,
+                      price: this.state.price,
+                      quantity: this.state.quantity,
+                    }
+                  )
+                  .then(async (resp) => {
+                    console.log("sd", resp.data);
 
-                  this.uploadImage(this.state.image, this.props.route.params.item._id)
-                  .then((resp) => Alert("success"))
-                  .then((err) => Alert(err));
-
-                })
-                .catch(err => console.log(err))
-
-
+                    this.uploadImage(
+                      this.state.image,
+                      this.props.route.params.item._id
+                    )
+                      .then((resp) => Alert("success"))
+                      .then((resp)=> this.props.navigation.navigate('Home') )
+                      .then((err) => Alert(err));
+                  })
+                  .catch((err) => console.log(err));
               } else {
                 alert("Please enter quantity");
               }
@@ -151,10 +175,36 @@ export default class ProductDetails extends React.Component {
 
   render() {
     let { image } = this.state;
-   
 
     return (
       <View>
+        <Modal isVisible={this.state.modal}>
+          <View
+            style={{
+              paddingHorizontal: 20,
+              paddingVertical: 20,
+              marginHorizontal: 20,
+              backgroundColor: "white",
+              color: "white",
+            }}
+          >
+            <Button title="From Gallery" onPress={() => this._pickImage()} />
+            <View style={{ marginTop: 10 }} />
+            <Button
+              title="From Camera"
+              onPress={() => this._pickImageCamera()}
+            />
+            <View style={{ alignItems: "flex-end" }}>
+              <View style={{ marginTop: 20, width: 100 }}>
+                <Button
+                  title="Close"
+                  color="#841584"
+                  onPress={() => this.setState({ modal: false })}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
         <View
           style={{
             paddingTop: getStatusBarHeight(),
@@ -164,7 +214,7 @@ export default class ProductDetails extends React.Component {
             alignItems: "center",
           }}
         >
-          <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('Home')}>
             <Icon
               style={{
                 color: "white",
@@ -193,7 +243,7 @@ export default class ProductDetails extends React.Component {
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20 }}>
           <Form>
             <View style={{ marginTop: 20, alignItems: "center" }}>
-              <TouchableOpacity onPress={this._pickImage}>
+              <TouchableOpacity onPress={() => this.setState({ modal: true })}>
                 {image ? (
                   <Image
                     source={{ uri: image }}
@@ -219,24 +269,56 @@ export default class ProductDetails extends React.Component {
             </View>
             <Item floatingLabel>
               <Label>Name</Label>
-              <Input value={this.state.name} onChangeText={(name) => this.setState({ name })}/>
+              <Input
+                value={this.state.name}
+                onChangeText={(name) => this.setState({ name })}
+              />
             </Item>
             <Item floatingLabel last>
               <Label>Type</Label>
-              <Input value={this.state.type} onChangeText={(type) => this.setState({ type })}/>
+              <Input
+                value={this.state.type}
+                onChangeText={(type) => this.setState({ type })}
+              />
             </Item>
             <Item floatingLabel last>
               <Label>Description</Label>
-              <Input value={this.state.description} onChangeText={(description) => this.setState({ description })}/>
+              <Input
+                value={this.state.description}
+                onChangeText={(description) => this.setState({ description })}
+              />
             </Item>
             <Item floatingLabel last>
               <Label>Price</Label>
-              <Input keyboardType={"decimal-pad"} value={this.state.price} onChangeText={(price) => this.setState({ price })}/>
+              <Input
+                keyboardType={"decimal-pad"}
+                value={this.state.price}
+                onChangeText={(price) => this.setState({ price })}
+              />
             </Item>
             <Item floatingLabel last>
-              <Label keyboardType={"decimal-pad"} >Quantity</Label>
-              <Input value={this.state.quantity} onChangeText={(quantity) => this.setState({ quantity })}/>
+              <Label keyboardType={"decimal-pad"}>Quantity</Label>
+              <Input
+                value={this.state.quantity}
+                onChangeText={(quantity) => this.setState({ quantity })}
+              />
             </Item>
+            <View style={{ alignItems: "flex-end" }}>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: "gray",
+                    marginTop: 10,
+                    paddingVertical: 5,
+                    paddingHorizontal: 20,
+                    borderRadius: 10,
+                  }}
+                  onPress={() =>
+                    this.props.navigation.navigate("BarcodeScreen")
+                  }
+                >
+                  <Text style={{ color: "white" }}>Auto Select</Text>
+                </TouchableOpacity>
+              </View>
           </Form>
         </ScrollView>
       </View>

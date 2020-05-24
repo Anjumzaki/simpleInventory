@@ -56,7 +56,7 @@ export default class ProductDetails extends React.Component {
             alignItems: "center",
           }}
         >
-          <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('Home')}>
             <Icon
               style={{
                 color: "white",

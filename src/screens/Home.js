@@ -241,7 +241,7 @@ export default class GeneralExample extends React.Component {
                       }}
                     >
                       <Text>{item.name}</Text>
-                      <Text>{item.price}</Text>
+                      <Text>{item.price} €</Text>
                     </View>
                     <View
                       style={{
@@ -301,7 +301,7 @@ export default class GeneralExample extends React.Component {
                       }}
                     >
                       <Text>{item.name}</Text>
-                      <Text>{item.price}</Text>
+                      <Text>{item.price}€</Text>
                     </View>
                     <View
                       style={{

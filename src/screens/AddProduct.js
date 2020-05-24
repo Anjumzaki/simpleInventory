@@ -1,10 +1,18 @@
 import React from "react";
-import { View, Image, ActivityIndicator, Alert } from "react-native";
+import {
+  View,
+  Image,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Button,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
-import axios from 'axios'
-import firebase from 'firebase'
+import axios from "axios";
+import firebase from "firebase";
 import {
   Container,
   Header,
@@ -13,7 +21,6 @@ import {
   CardItem,
   Thumbnail,
   Text,
-  Button,
   Icon,
   Left,
   Body,
@@ -22,6 +29,7 @@ import {
   Label,
   Input,
 } from "native-base";
+import Modal from "react-native-modal";
 import { getStatusBarHeight } from "react-native-status-bar-height";
 import { TouchableOpacity, ScrollView } from "react-native-gesture-handler";
 
@@ -36,8 +44,9 @@ export default class ProductDetails extends React.Component {
       description: "",
       price: "",
       quantity: "",
-      serialNo: '',
-      msg: ''
+      serialNo: "",
+      msg: "",
+      modal: false,
     };
   }
   componentDidMount() {
@@ -53,6 +62,23 @@ export default class ProductDetails extends React.Component {
     }
   };
 
+  _pickImageCamera = async () => {
+    try {
+      let result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      if (!result.cancelled) {
+        this.setState({ image: result.uri, modal: false });
+      }
+
+      console.log(result);
+    } catch (E) {
+      console.log(E);
+    }
+  };
   _pickImage = async () => {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
@@ -62,7 +88,7 @@ export default class ProductDetails extends React.Component {
         quality: 1,
       });
       if (!result.cancelled) {
-        this.setState({ image: result.uri });
+        this.setState({ image: result.uri, modal: false });
       }
 
       console.log(result);
@@ -71,18 +97,17 @@ export default class ProductDetails extends React.Component {
     }
   };
 
+  uploadImage = async (uri, id) => {
+    console.log("in functiom", uri, id);
+    const response = await fetch(uri);
+    const blob = await response.blob();
 
-    uploadImage = async (uri,id) => {
-      console.log("in functiom",uri,id)
-      const response = await fetch(uri);
-      const blob = await response.blob();
-
-      var ref = firebase
-        .storage()
-        .ref()
-        .child("product_images/" + id + ".jpg");
-      return ref.put(blob);
-    };
+    var ref = firebase
+      .storage()
+      .ref()
+      .child("product_images/" + id + ".jpg");
+    return ref.put(blob);
+  };
 
   async handleSave() {
     if (this.state.image) {
@@ -92,28 +117,34 @@ export default class ProductDetails extends React.Component {
             if (this.state.price) {
               if (this.state.quantity) {
                 if (this.state.serialNo) {
-                    axios.post('https://secret-beach-00126.herokuapp.com/add/product',{
-                      name: this.state.name,
-                      type: this.state.type,
-                      description: this.state.description,
-                      price: this.state.price,
-                      quantity: this.state.quantity,
-                      serialNo: this.state.serialNo,
-                      userId: this.props.route.params.uid
+                  axios
+                    .post(
+                      "https://secret-beach-00126.herokuapp.com/add/product",
+                      {
+                        name: this.state.name,
+                        type: this.state.type,
+                        description: this.state.description,
+                        price: this.state.price,
+                        quantity: this.state.quantity,
+                        serialNo: this.state.serialNo,
+                        userId: this.props.route.params.uid,
+                      }
+                    )
+                    .then(async (resp) => {
+                      console.log("sd", resp.data);
+                      await this.uploadImage(
+                        this.state.image,
+                        resp.data.product._id
+                      );
+                      alert("Product Publish Successfully");
+                      this.props.navigation.navigate("Home");
                     })
-                    .then(async(resp) => {
-                      console.log("sd",resp.data)
-                      await this.uploadImage(this.state.image, resp.data.product._id)
-                       alert("Product Publish Successfully")
-                    })
-                    .catch(err => console.log(err))
+                    .catch((err) => console.log(err));
 
-                // alert("Call Function here");
-   
-
-              } else {
-                alert("Please enter serial Code");
-              }
+                  // alert("Call Function here");
+                } else {
+                  alert("Please enter serial Code");
+                }
               } else {
                 alert("Please enter quantity");
               }
@@ -134,10 +165,37 @@ export default class ProductDetails extends React.Component {
     }
   }
   render() {
-    console.log("state",this.state)
+    console.log("state", this.state);
     let { image } = this.state;
     return (
       <View>
+        <Modal isVisible={this.state.modal}>
+          <View
+            style={{
+              paddingHorizontal: 20,
+              paddingVertical: 20,
+              marginHorizontal: 20,
+              backgroundColor: "white",
+              color: "white",
+            }}
+          >
+            <Button title="From Gallery" onPress={() => this._pickImage()} />
+            <View style={{ marginTop: 10 }} />
+            <Button
+              title="From Camera"
+              onPress={() => this._pickImageCamera()}
+            />
+            <View style={{ alignItems: "flex-end" }}>
+              <View style={{ marginTop: 20, width: 100 }}>
+                <Button
+                  title="Close"
+                  color="#841584"
+                  onPress={() => this.setState({ modal: false })}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
         <View
           style={{
             paddingTop: getStatusBarHeight(),
@@ -147,7 +205,7 @@ export default class ProductDetails extends React.Component {
             alignItems: "center",
           }}
         >
-          <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('Home')}>
             <Icon
               style={{
                 color: "white",
@@ -173,70 +231,103 @@ export default class ProductDetails extends React.Component {
             </Text>
           </TouchableOpacity>
         </View>
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 20 }}>
-          <Form>
-            <View style={{ marginTop: 20, alignItems: "center" }}>
-              <TouchableOpacity onPress={this._pickImage}>
-                {image ? (
-                  <Image
-                    source={{ uri: image }}
-                    style={{ width: 200, height: 200 }}
-                  />
-                ) : (
-                  <View
-                    style={{
-                      width: 200,
-                      height: 200,
-                      backgroundColor: "#DFE6E9",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Icon
-                      style={{ color: "#B2BEC3", fontSize: 100 }}
-                      name="ios-add"
+        <ScrollView
+          contentContainerStyle={{ paddingHorizontal: 20, marginBottom: 30 }}
+        >
+          <KeyboardAvoidingView behavior={"position"}>
+            <Form>
+              <View style={{ marginTop: 20, alignItems: "center" }}>
+                <TouchableOpacity
+                  onPress={() => this.setState({ modal: true })}
+                >
+                  {image ? (
+                    <Image
+                      source={{ uri: image }}
+                      style={{ width: 200, height: 200 }}
                     />
-                  </View>
-                )}
-              </TouchableOpacity>
-            </View>
-            <Item floatingLabel>
-              <Label>Name</Label>
-              <Input onChangeText={(name) => this.setState({ name })} />
-            </Item>
-            <Item floatingLabel last>
-              <Label>Type</Label>
-              <Input onChangeText={(type) => this.setState({ type })} />
-            </Item>
-            <Item floatingLabel last>
-              <Label>Description</Label>
-              <Input
-                onChangeText={(description) => this.setState({ description })}
-              />
-            </Item>
-            <Item floatingLabel last>
-              <Label>Price</Label>
-              <Input
-                onChangeText={(price) => this.setState({ price })}
-                keyboardType={"decimal-pad"}
-              />
-            </Item>
-            <Item floatingLabel last>
-              <Label keyboardType={"decimal-pad"}>Quantity</Label>
-              <Input onChangeText={(quantity) => this.setState({ quantity })} />
-            </Item>
-            <Item floatingLabel last>
-              <Label keyboardType={"decimal-pad"}>Serial Code.</Label>
-              <Input 
-              value={this.state.serialNo ? this.state.serialNo : this.props.route.params.serialNo}
-              onChangeText={(serialNo) => {
-                 this.setState({
-                   serialNo
-                 })
-                }} />
-            </Item>
-              <Text style={{textAlign: "center", color: "red"}}>{this.state.msg}</Text>
-          </Form>
+                  ) : (
+                    <View
+                      style={{
+                        width: 200,
+                        height: 200,
+                        backgroundColor: "#DFE6E9",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Icon
+                        style={{ color: "#B2BEC3", fontSize: 100 }}
+                        name="ios-add"
+                      />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+              <Item floatingLabel>
+                <Label>Name</Label>
+                <Input onChangeText={(name) => this.setState({ name })} />
+              </Item>
+              <Item floatingLabel last>
+                <Label>Type</Label>
+                <Input onChangeText={(type) => this.setState({ type })} />
+              </Item>
+              <Item floatingLabel last>
+                <Label>Description</Label>
+                <Input
+                  onChangeText={(description) => this.setState({ description })}
+                />
+              </Item>
+              <Item floatingLabel last>
+                <Label>Price</Label>
+                <Input
+                  onChangeText={(price) => this.setState({ price })}
+                  keyboardType={"decimal-pad"}
+                />
+              </Item>
+              <Item floatingLabel last>
+                <Label keyboardType={"decimal-pad"}>Quantity</Label>
+                <Input
+                  onChangeText={(quantity) => this.setState({ quantity })}
+                />
+              </Item>
+
+              <Item floatingLabel last>
+                <Label keyboardType={"decimal-pad"}>Serial Code.</Label>
+                <Input
+                  value={
+                    this.state.serialNo
+                      ? this.state.serialNo
+                      : this.props.route.params.serialNo
+                  }
+                  onChangeText={(serialNo) => {
+                    this.setState({
+                      serialNo,
+                    });
+                  }}
+                />
+              </Item>
+              <View style={{ alignItems: "flex-end" }}>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: "gray",
+                    marginTop: 10,
+                    paddingVertical: 5,
+                    paddingHorizontal: 20,
+                    borderRadius: 10,
+                  }}
+                  onPress={() =>
+                    this.props.navigation.navigate("BarcodeScreen")
+                  }
+                >
+                  <Text style={{ color: "white" }}>Auto Select</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={{ textAlign: "center", color: "red" }}>
+                {this.state.msg}
+              </Text>
+            </Form>
+          </KeyboardAvoidingView>
         </ScrollView>
       </View>
     );
