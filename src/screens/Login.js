@@ -9,6 +9,7 @@ import {
   Item,
   Input,
   Label,
+  Thumbnail,
 } from "native-base";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import * as EmailValidator from "email-validator";
@@ -120,7 +121,7 @@ export default class Login extends React.Component {
           </Form>
         </View>
         <View>
-
+            <Text style={{color: "red", textAlign: "center"}}>{this.state.errMessage}</Text>
         <TouchableOpacity
           style={{
             alignItems: "center",
