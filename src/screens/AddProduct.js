@@ -156,6 +156,20 @@ export default class ProductDetails extends React.Component {
                         this.state.image,
                         resp.data.product._id
                       );
+                      this.setState({
+                        name: "",
+                        type: "",
+                        description: "",
+                        price: "",
+                        quantity: "",
+                        image: "",
+                        serialNo: ""
+                      })
+                      try {
+                        await AsyncStorage.setItem("proData", null)
+                      } catch (e) {
+                        console.error(e)
+                      }
                       alert("Product Publish Successfully");
                       this.props.navigation.navigate("Home");
                     })
