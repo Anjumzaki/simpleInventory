@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Button,
+  AsyncStorage
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
@@ -49,8 +50,27 @@ export default class ProductDetails extends React.Component {
       modal: false,
     };
   }
-  componentDidMount() {
+  async componentDidMount() {
     this.getPermissionAsync();
+    try {
+      const data1 = await AsyncStorage.getItem("proData")
+      console.log("datttt",data1)
+      var data = JSON.parse(data1)
+      if (data !== null) {
+        this.setState({
+          name: data.name,
+          type: data.type,
+          description: data.description,
+          price: data.price,
+          quantity: data.quantity,
+          image: data.image
+        })
+      }
+    } catch (e) {
+      console.error('Failed to load .')
+    }
+    console.log("this.props.route.params.serialNothis.props.route.params.serialNo", this.props.route.params.serialNo)
+    this.setState({serialNo: this.props.route.params.serialNo})
   }
 
   getPermissionAsync = async () => {
@@ -265,29 +285,29 @@ export default class ProductDetails extends React.Component {
               </View>
               <Item floatingLabel>
                 <Label>Name</Label>
-                <Input onChangeText={(name) => this.setState({ name })} />
+                <Input value={this.state.name} onChangeText={(name) => this.setState({ name })} />
               </Item>
               <Item floatingLabel last>
                 <Label>Type</Label>
-                <Input onChangeText={(type) => this.setState({ type })} />
+                <Input value={this.state.type} onChangeText={(type) => this.setState({ type })} />
               </Item>
               <Item floatingLabel last>
                 <Label>Description</Label>
                 <Input
-                  onChangeText={(description) => this.setState({ description })}
+                  value={this.state.description} onChangeText={(description) => this.setState({ description })}
                 />
               </Item>
               <Item floatingLabel last>
                 <Label>Price</Label>
                 <Input
-                  onChangeText={(price) => this.setState({ price })}
+                  value={this.state.price} onChangeText={(price) => this.setState({ price })}
                   keyboardType={"decimal-pad"}
                 />
               </Item>
               <Item floatingLabel last>
                 <Label keyboardType={"decimal-pad"}>Quantity</Label>
                 <Input
-                  onChangeText={(quantity) => this.setState({ quantity })}
+                  value={this.state.quantity} onChangeText={(quantity) => this.setState({ quantity })}
                 />
               </Item>
 
@@ -296,10 +316,8 @@ export default class ProductDetails extends React.Component {
                 <Input
                   value={
                     this.state.serialNo
-                      ? this.state.serialNo
-                      : this.props.route.params.serialNo
                   }
-                  onChangeText={(serialNo) => {
+                  value={this.state.serialNo} onChangeText={(serialNo) => {
                     this.setState({
                       serialNo,
                     });
@@ -315,9 +333,23 @@ export default class ProductDetails extends React.Component {
                     paddingHorizontal: 20,
                     borderRadius: 10,
                   }}
-                  onPress={() =>
+                  onPress={async () =>{
+                    try {
+                      await AsyncStorage.setItem("proData", JSON.stringify({
+                        name: this.state.name,
+                        type: this.state.type,
+                        description: this.state.description,
+                        price: this.state.price,
+                        quantity: this.state.quantity,
+                        image: this.state.image
+                      }))
+                
+                      // this.setState({name})
+                    } catch (e) {
+                      console.error(e)
+                    }
                     this.props.navigation.navigate("BarcodeScreen")
-                  }
+                  }}
                 >
                   <Text style={{ color: "white" }}>Auto Select</Text>
                 </TouchableOpacity>
