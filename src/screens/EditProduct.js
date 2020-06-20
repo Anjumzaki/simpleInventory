@@ -149,7 +149,7 @@ export default class ProductDetails extends React.Component {
                       this.props.route.params.item._id
                     )
                       .then((resp) => Alert("success"))
-                      .then((resp)=> this.props.navigation.navigate('Home') )
+                      .then((resp) => this.props.navigation.navigate("Home"))
                       .then((err) => Alert(err));
                   })
                   .catch((err) => console.log(err));
@@ -214,7 +214,9 @@ export default class ProductDetails extends React.Component {
             alignItems: "center",
           }}
         >
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('Home')}>
+          <TouchableOpacity
+            onPress={() => this.props.navigation.navigate("Home")}
+          >
             <Icon
               style={{
                 color: "white",
@@ -266,6 +268,9 @@ export default class ProductDetails extends React.Component {
                   </View>
                 )}
               </TouchableOpacity>
+              <Text style={{ fontSize: 10, marginTop: 10 }}>
+                Click on Image to edit
+              </Text>
             </View>
             <Item floatingLabel>
               <Label>Name</Label>
@@ -304,21 +309,19 @@ export default class ProductDetails extends React.Component {
               />
             </Item>
             <View style={{ alignItems: "flex-end" }}>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: "gray",
-                    marginTop: 10,
-                    paddingVertical: 5,
-                    paddingHorizontal: 20,
-                    borderRadius: 10,
-                  }}
-                  onPress={() =>
-                    this.props.navigation.navigate("BarcodeScreen")
-                  }
-                >
-                  <Text style={{ color: "white" }}>Auto Select</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "gray",
+                  marginTop: 10,
+                  paddingVertical: 5,
+                  paddingHorizontal: 20,
+                  borderRadius: 10,
+                }}
+                onPress={() => this.props.navigation.navigate("BarcodeScreen")}
+              >
+                <Text style={{ color: "white" }}>Auto Select</Text>
+              </TouchableOpacity>
+            </View>
           </Form>
         </ScrollView>
       </View>
