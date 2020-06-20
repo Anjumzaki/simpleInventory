@@ -7,7 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Button,
-  AsyncStorage
+  StyleSheet
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
@@ -33,6 +33,7 @@ import {
 import Modal from "react-native-modal";
 import { getStatusBarHeight } from "react-native-status-bar-height";
 import { TouchableOpacity, ScrollView } from "react-native-gesture-handler";
+import { BarCodeScanner } from 'expo-barcode-scanner';
 
 export default class ProductDetails extends React.Component {
   constructor(props) {
@@ -48,28 +49,12 @@ export default class ProductDetails extends React.Component {
       serialNo: "",
       msg: "",
       modal: false,
+      isQr: false,
+      scanned: false
     };
   }
   async componentDidMount() {
     this.getPermissionAsync();
-    try {
-      const data1 = await AsyncStorage.getItem("proData")
-      console.log("datttt",data1)
-      var data = JSON.parse(data1)
-      if (data !== null) {
-        this.setState({
-          name: data.name,
-          type: data.type,
-          description: data.description,
-          price: data.price,
-          quantity: data.quantity,
-          image: data.image
-        })
-      }
-    } catch (e) {
-      console.error('Failed to load .')
-    }
-    console.log("this.props.route.params.serialNothis.props.route.params.serialNo", this.props.route.params.serialNo)
     this.setState({serialNo: this.props.route.params.serialNo})
   }
 
@@ -129,6 +114,14 @@ export default class ProductDetails extends React.Component {
     return ref.put(blob);
   };
 
+  handleBarCodeScanned = ({ type, data }) => {
+    this.setState({scanned: true})
+    // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    console.log("dataaaaaaaa",data)
+        this.setState({serialNo: data, isQr: false})
+      
+  };
+
   async handleSave() {
     if (this.state.image) {
       if (this.state.name) {
@@ -166,13 +159,9 @@ export default class ProductDetails extends React.Component {
                         image: "",
                         serialNo: ""
                       })
-                      try {
-                        await AsyncStorage.setItem("proData", JSON.stringify(""))
                         alert("Product Publish Successfully");
                         this.props.navigation.navigate("Home");
-                      } catch (e) {
-                        console.error(e)
-                      }
+                      
                       
                     })
                     .catch((err) => console.log(err));
@@ -204,6 +193,7 @@ export default class ProductDetails extends React.Component {
     console.log("state", this.state);
     let { image } = this.state;
     return (
+      !this.state.isQr ? ( 
       <View>
         <Modal isVisible={this.state.modal}>
           <View
@@ -350,21 +340,7 @@ export default class ProductDetails extends React.Component {
                     borderRadius: 10,
                   }}
                   onPress={async () =>{
-                    try {
-                      await AsyncStorage.setItem("proData", JSON.stringify({
-                        name: this.state.name,
-                        type: this.state.type,
-                        description: this.state.description,
-                        price: this.state.price,
-                        quantity: this.state.quantity,
-                        image: this.state.image
-                      }))
-                
-                      // this.setState({name})
-                    } catch (e) {
-                      console.error(e)
-                    }
-                    this.props.navigation.navigate("BarcodeScreen")
+                    this.setState({isQr: true})
                   }}
                 >
                   <Text style={{ color: "white" }}>Auto Select</Text>
@@ -378,6 +354,23 @@ export default class ProductDetails extends React.Component {
           </KeyboardAvoidingView>
         </ScrollView>
       </View>
+
+      ): (
+        <View
+        style={{
+          flex: 1,
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+        }}>
+          
+        <BarCodeScanner
+          onBarCodeScanned={this.state.scanned ? undefined : this.handleBarCodeScanned}
+          style={StyleSheet.absoluteFillObject}
+        />
+  
+        {this.state.scanned && <Button title={'Tap to Scan Again'} onPress={() => this.setState({scanned: false})} />}
+      </View>
+      )
     );
   }
 }
