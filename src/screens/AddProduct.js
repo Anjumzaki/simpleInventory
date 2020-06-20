@@ -156,6 +156,7 @@ export default class ProductDetails extends React.Component {
                         this.state.image,
                         resp.data.product._id
                       );
+
                       this.setState({
                         name: "",
                         type: "",
@@ -166,12 +167,13 @@ export default class ProductDetails extends React.Component {
                         serialNo: ""
                       })
                       try {
-                        await AsyncStorage.setItem("proData", null)
+                        await AsyncStorage.setItem("proData", JSON.stringify(""))
+                        alert("Product Publish Successfully");
+                        this.props.navigation.navigate("Home");
                       } catch (e) {
                         console.error(e)
                       }
-                      alert("Product Publish Successfully");
-                      this.props.navigation.navigate("Home");
+                      
                     })
                     .catch((err) => console.log(err));
 
