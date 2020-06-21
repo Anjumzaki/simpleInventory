@@ -56,6 +56,21 @@ export default class ProductDetails extends React.Component {
   async componentDidMount() {
     this.getPermissionAsync();
     this.setState({serialNo: this.props.route.params.serialNo})
+
+    this.backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      this.backAction
+    );
+    this._unsubscribe = this.props.navigation.addListener("blur", () => {
+      this.backHandler.remove();
+    });
+    this._unsubscribe = this.props.navigation.addListener("focus", () => {
+      this.backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        this.backAction
+      );
+     });
+  
   }
 
   getPermissionAsync = async () => {
@@ -113,6 +128,17 @@ export default class ProductDetails extends React.Component {
       .child("product_images/" + id + ".jpg");
     return ref.put(blob);
   };
+
+  backAction = () => {
+    if (this.state.isQr == true) {
+      this.setState({isQr: false})
+      return false;
+    } else {
+      this.props.navigation.goBack(null)
+      return true;
+    }
+  };
+ 
 
   handleBarCodeScanned = ({ type, data }) => {
     this.setState({scanned: true})
